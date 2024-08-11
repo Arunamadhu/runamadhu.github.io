@@ -52,7 +52,7 @@
     }
     
     .jumbotron h1 {
-      color: #ffeb3b;
+      color: #f39c12;
       position: relative;
       z-index: 2;
     }
@@ -152,11 +152,65 @@
     animation: fadeInUp 1.5s ease-out forwards;
     opacity: 0;
   }
-pexels-timmossholder-1764702
+pexels-timmossholder-1764702 
+
+
+
+
+
+
+ .news-ticker {
+      width: 100%;
+      background-color: #333;
+      overflow: hidden;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .news-ticker-content {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%; /* Start off-screen */
+      animation: ticker 20s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    .news-ticker h1 {
+      display: inline-block;
+      font-size: 1.5em;
+      color: #ffeb3b;
+      margin: 0;
+      padding-right: 50px;
+    }
+
+
+
+
+
+
+
 
   </style>
 </head>
-<body>
+<body> 
+
+<div class="news-ticker">
+    <div class="news-ticker-content">
+      <h1>This is a test Website!&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+      <h1>This is a test Website!&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+      <h1>This is a test Website!&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+    </div>
+ </div>
 
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
