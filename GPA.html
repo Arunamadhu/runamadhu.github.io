@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .courses-container {
+            margin-bottom: 20px;
+        }
+
+        .course {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .course-title {
+            font-weight: bold;
+            color: #444;
+        }
+
+        .remove-course {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .remove-course:hover {
+            background: #ff6b81;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .result.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .gpa-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .gpa-scale {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #ff4757;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 480px) {
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GPA Calculator</h1>
+        <p class="description">Calculate your Grade Point Average quickly and easily</p>
+        
+        <div class="courses-container" id="courses-container"></div>
+        
+        <div class="button-group">
+            <button class="btn btn-secondary" onclick="addCourse()">Add Course</button>
+            <button class="btn btn-primary" onclick="calculateGPA()">Calculate GPA</button>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <h3>Your GPA</h3>
+            <div class="gpa-value" id="gpa-value"></div>
+            <div class="gpa-scale">
+                Scale: A = 4.0, B = 3.0, C = 2.0, D = 1.0, F = 0.0
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let courseCount = 0;
+
+        function addCourse() {
+            courseCount++;
+            const coursesContainer = document.getElementById('courses-container');
+            const courseDiv = document.createElement('div');
+            courseDiv.className = 'course';
+            courseDiv.innerHTML = `
+                <div class="course-header">
+                    <span class="course-title">Course ${courseCount}</span>
+                    <button class="remove-course" onclick="removeCourse(this)">Remove</button>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Credits</label>
+                        <input type="number" class="credits" min="0" step="0.5" placeholder="Enter credits">
+                    </div>
+                    <div class="input-field">
+                        <label>Grade</label>
+                        <select class="grade">
+                            <option value="">Select grade</option>
+                            <option value="4.0">A</option>
+                            <option value="3.0">B</option>
+                            <option value="2.0">C</option>
+                            <option value="1.0">D</option>
+                            <option value="0.0">F</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            coursesContainer.appendChild(courseDiv);
+        }
+
+        function removeCourse(button) {
+            button.closest('.course').remove();
+        }
+
+        function calculateGPA() {
+            const courses = document.getElementsByClassName('course');
+            let totalCredits = 0;
+            let totalPoints = 0;
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+            
+            error.textContent = '';
+            result.classList.remove('active');
+
+            if (courses.length === 0) {
+                error.textContent = 'Please add at least one course';
+                return;
+            }
+
+            for (let course of courses) {
+                const credits = parseFloat(course.querySelector('.credits').value);
+                const grade = parseFloat(course.querySelector('.grade').value);
+
+                if (isNaN(credits) || isNaN(grade)) {
+                    error.textContent = 'Please fill in all fields correctly';
+                    return;
+                }
+
+                if (credits <= 0) {
+                    error.textContent = 'Credits must be greater than 0';
+                    return;
+                }
+
+                totalCredits += credits;
+                totalPoints += credits * grade;
+            }
+
+            if (totalCredits === 0) {
+                error.textContent = 'Total credits cannot be 0';
+                return;
+            }
+
+            const gpa = totalPoints / totalCredits;
+            document.getElementById('gpa-value').textContent = gpa.toFixed(2);
+            result.classList.add('active');
+        }
+
+        // Add initial course
+        addCourse();
+    </script>
+</body>
+</html>
