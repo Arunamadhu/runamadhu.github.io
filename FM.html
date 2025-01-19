@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM Radio Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .radio-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+        }
+
+        .radio-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .radio-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .now-playing {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .stations-container {
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .station {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .station:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .station.playing {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .station-freq {
+            font-weight: bold;
+            margin-right: 15px;
+            min-width: 60px;
+        }
+
+        .station-name {
+            flex-grow: 1;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .volume-control {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            appearance: none;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes equalizer {
+            0% { height: 5px; }
+            50% { height: 15px; }
+            100% { height: 5px; }
+        }
+
+        .equalizer {
+            display: flex;
+            gap: 3px;
+            height: 20px;
+            align-items: flex-end;
+            margin: 10px 0;
+        }
+
+        .equalizer-bar {
+            width: 3px;
+            background: #4CAF50;
+            animation: equalizer 0.5s ease infinite;
+        }
+
+        .equalizer-bar:nth-child(2) { animation-delay: 0.1s; }
+        .equalizer-bar:nth-child(3) { animation-delay: 0.2s; }
+        .equalizer-bar:nth-child(4) { animation-delay: 0.3s; }
+        .equalizer-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<!-- Previous head and style sections remain the same -->
+<head>
+    <!-- Previous CSS styles remain exactly the same -->
+    <style>
+    /* All previous CSS styles remain exactly the same */
+    </style>
+</head>
+<body>
+    <div class="radio-container">
+        <div class="radio-header">
+            <h1 class="radio-title">Online Radio Player</h1>
+            <p class="now-playing">Now Playing: <span id="current-station">Select a station</span></p>
+            
+            <div class="equalizer">
+                <div class="equalizer-bar"></div>
+                <div class="equalizer-bar"></div>
+                <div class="equalizer-bar"></div>
+                <div class="equalizer-bar"></div>
+                <div class="equalizer-bar"></div>
+            </div>
+        </div>
+
+        <div class="stations-container">
+            <!-- Updated stations with working stream URLs -->
+            <div class="station" data-url= "https://uk2.streamingpulse.com/ssl/vcr1">
+                <span class="station-freq">98.8</span>
+                <span class="station-name"> Venice Classic </span>
+            </div>
+            <div class="station" data-url="https://stream.rockradio.com/classical-rock">
+                <span class="station-freq">89.1</span>
+                <span class="station-name">Rock Radio</span>
+            </div>
+            <div class="station" data-url="https://ice1.somafm.com/groovesalad-128-mp3">
+                <span class="station-freq">103.5</span>
+                <span class="station-name">Groove Salad</span>
+            </div>
+            <div class="station" data-url="https://ice1.somafm.com/deepspaceone-128-mp3">
+                <span class="station-freq">96.3</span>
+                <span class="station-name">Deep Space One</span>
+            </div>
+            <div class="station" data-url="https://ice1.somafm.com/defcon-128-mp3">
+                <span class="station-freq">92.7</span>
+                <span class="station-name">DEF CON Radio</span>
+            </div>
+            <div class="station" data-url="https://ice1.somafm.com/dronezone-128-mp3">
+                <span class="station-freq">107.1</span>
+                <span class="station-name">Drone Zone</span>
+            </div>
+        </div>
+
+        <!-- Rest of the HTML remains the same              
+		
+		"Venice Classic": "https://uk2.streamingpulse.com/ssl/vcr1",
+         "Plaza Radio": "http://94.23.27.6:8282/stream",
+          "Chillout Radio": "http://air.radioart.com/f_chillout.mp3",
+           "Rock Radio": "https://stream.rockradio.com/classical-rock"
+
+
+
+		-->
+        <div class="controls">
+            <button class="control-btn" id="prev-btn">⏮</button>
+            <button class="control-btn" id="play-btn">▶</button>
+            <button class="control-btn" id="next-btn">⏭</button>
+        </div>
+
+        <div class="volume-control">
+            <input type="range" class="volume-slider" id="volume" min="0" max="100" value="50">
+        </div>
+
+        <div class="error-message" id="error-message">
+            Unable to play this station. Please try another one.
+        </div>
+    </div>
+
+    <!-- Previous JavaScript code remains the same -->
+    <script>
+    // All previous JavaScript code remains exactly the same
+    </script>
+</body>
+</html>
+
+    <script>
+        let currentAudio = null;
+        let isPlaying = false;
+        let currentStationIndex = -1;
+        const stations = document.querySelectorAll('.station');
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const volumeSlider = document.getElementById('volume');
+        const currentStationText = document.getElementById('current-station');
+        const errorMessage = document.getElementById('error-message');
+
+        function playStation(index) {
+            // Stop current playback if any
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            // Remove playing class from all stations
+            stations.forEach(station => station.classList.remove('playing'));
+
+            // If valid index
+            if (index >= 0 && index < stations.length) {
+                const station = stations[index];
+                const url = station.dataset.url;
+                
+                // Create new audio instance
+                currentAudio = new Audio(url);
+                currentAudio.volume = volumeSlider.value / 100;
+
+                // Update UI
+                station.classList.add('playing');
+                currentStationText.textContent = 
+                    station.querySelector('.station-freq').textContent + ' - ' +
+                    station.querySelector('.station-name').textContent;
+                playBtn.textContent = '⏸';
+                isPlaying = true;
+                currentStationIndex = index;
+                errorMessage.style.display = 'none';
+
+                // Handle errors
+                currentAudio.onerror = () => {
+                    errorMessage.style.display = 'block';
+                    station.classList.remove('playing');
+                    playBtn.textContent = '▶';
+                    isPlaying = false;
+                };
+
+                // Start playing
+                currentAudio.play().catch(error => {
+                    console.error('Error playing audio:', error);
+                    errorMessage.style.display = 'block';
+                });
+            }
+        }
+
+        // Add click handlers to stations
+        stations.forEach((station, index) => {
+            station.addEventListener('click', () => {
+                playStation(index);
+            });
+        });
+
+        // Play/Pause button
+        playBtn.addEventListener('click', () => {
+            if (currentAudio) {
+                if (isPlaying) {
+                    currentAudio.pause();
+                    playBtn.textContent = '▶';
+                } else {
+                    currentAudio.play();
+                    playBtn.textContent = '⏸';
+                }
+                isPlaying = !isPlaying;
+            } else if (currentStationIndex === -1) {
+                // Play first station if none is playing
+                playStation(0);
+            }
+        });
+
+        // Previous button
+        prevBtn.addEventListener('click', () => {
+            let newIndex = currentStationIndex - 1;
+            if (newIndex < 0) newIndex = stations.length - 1;
+            playStation(newIndex);
+        });
+
+        // Next button
+        nextBtn.addEventListener('click', () => {
+            let newIndex = currentStationIndex + 1;
+            if (newIndex >= stations.length) newIndex = 0;
+            playStation(newIndex);
+        });
+
+        // Volume control
+        volumeSlider.addEventListener('input', () => {
+            if (currentAudio) {
+                currentAudio.volume = volumeSlider.value / 100;
+            }
+        });
+    </script>
+</body>
+</html>
