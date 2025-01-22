@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Expectancy Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #ff4d00;
+            --background: #1a1a1a;
+            --card: #2d2d2d;
+            --text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            padding: 2rem;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.1) 0%, transparent 60%);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 2rem;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 20px rgba(255, 77, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px var(--primary);
+            animation: flicker 3s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .slider-value {
+            text-align: center;
+            color: var(--primary);
+            margin-top: 0.5rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            width: 100%;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: #ff6b00;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+            margin-top: 2rem;
+            padding: 2rem;
+            border: 1px solid var(--primary);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #age-result {
+            font-size: 3rem;
+            color: var(--primary);
+            margin: 1rem 0;
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        .factors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .factor-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border: 1px solid var(--primary);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>☠️ Life Expectancy Calculator ☠️</h1>
+            
+            <form id="calculator-form">
+                <div class="form-group">
+                    <label for="age">Current Age</label>
+                    <input type="number" id="age" required min="1" max="120" placeholder="Enter your age">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" required>
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" required min="100" max="250" placeholder="Enter height in cm">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" required min="30" max="300" placeholder="Enter weight in kg">
+                </div>
+
+                <div class="form-group">
+                    <label for="smoking">Smoking Habits</label>
+                    <select id="smoking" required>
+                        <option value="">Select smoking status</option>
+                        <option value="never">Never Smoked</option>
+                        <option value="former">Former Smoker</option>
+                        <option value="light">Light Smoker (≤10/day)</option>
+                        <option value="heavy">Heavy Smoker (>10/day)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="alcohol">Alcohol Consumption</label>
+                    <input type="range" id="alcohol" min="0" max="30" value="0">
+                    <div class="slider-value" id="alcohol-value">0 drinks/week</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="exercise">Exercise</label>
+                    <input type="range" id="exercise" min="0" max="20" value="3">
+                    <div class="slider-value" id="exercise-value">3 hours/week</div>
+                </div>
+
+                <button type="submit">Calculate Your Fate</button>
+            </form>
+
+            <div class="result" id="result">
+                <h2>Your Destiny Awaits...</h2>
+                <p id="age-result"></p>
+                <div class="factors" id="factors"></div>
+                <div class="chart-container">
+                    <canvas id="impactChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update slider values
+        document.getElementById('alcohol').addEventListener('input', (e) => {
+            document.getElementById('alcohol-value').textContent = `${e.target.value} drinks/week`;
+        });
+
+        document.getElementById('exercise').addEventListener('input', (e) => {
+            document.getElementById('exercise-value').textContent = `${e.target.value} hours/week`;
+        });
+
+        // Calculate life expectancy
+        document.getElementById('calculator-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const height = parseInt(document.getElementById('height').value);
+            const weight = parseInt(document.getElementById('weight').value);
+            const smoking = document.getElementById('smoking').value;
+            const alcohol = parseInt(document.getElementById('alcohol').value);
+            const exercise = parseInt(document.getElementById('exercise').value);
+
+            // Calculate BMI
+            const bmi = weight / ((height / 100) ** 2);
+            
+            // Base life expectancy
+            let lifeExpectancy = gender === 'female' ? 81 : 76;
+
+            // Calculate impacts
+            const impacts = {
+                bmi: calculateBMIImpact(bmi),
+                smoking: calculateSmokingImpact(smoking),
+                alcohol: calculateAlcoholImpact(alcohol),
+                exercise: calculateExerciseImpact(exercise)
+            };
+
+            // Apply impacts
+            Object.values(impacts).forEach(impact => {
+                lifeExpectancy += impact;
+            });
+
+            // Display results
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('age-result').textContent = 
+                `${Math.round(lifeExpectancy)} years`;
+
+            // Display factor cards
+            displayFactors(impacts);
+            updateChart(impacts);
+        });
+
+        function calculateBMIImpact(bmi) {
+            if (bmi < 18.5) return -2;
+            if (bmi < 25) return 2;
+            if (bmi < 30) return -1;
+            if (bmi < 35) return -3;
+            return -5;
+        }
+
+        function calculateSmokingImpact(smoking) {
+            const impacts = {
+                'never': 4,
+                'former': 0,
+                'light': -5,
+                'heavy': -10
+            };
+            return impacts[smoking] || 0;
+        }
+
+        function calculateAlcoholImpact(drinks) {
+            if (drinks === 0) return 1;
+            if (drinks <= 7) return 0;
+            if (drinks <= 14) return -1;
+            if (drinks <= 21) return -2;
+            return -5;
+        }
+
+        function calculateExerciseImpact(hours) {
+            if (hours === 0) return -3;
+            if (hours < 2.5) return 0;
+            if (hours < 5) return 2;
+            if (hours < 10) return 3;
+            return 4;
+        }
+
+        function displayFactors(impacts) {
+            const factorsDiv = document.getElementById('factors');
+            factorsDiv.innerHTML = '';
+            
+            Object.entries(impacts).forEach(([factor, impact]) => {
+                const factorCard = document.createElement('div');
+                factorCard.className = 'factor-card';
+                factorCard.innerHTML = `
+                    <h3>${factor.toUpperCase()}</h3>
+                    <p class="impact">${impact > 0 ? '+' : ''}${impact} years</p>
+                `;
+                factorsDiv.appendChild(factorCard);
+            });
+        }
+
+        function updateChart(impacts) {
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            
+            if (window.impactChart) {
+                window.impactChart.destroy();
+            }
+
+            window.impactChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(impacts).map(key => key.toUpperCase()),
+                    datasets: [{
+                        label: 'Impact on Life Expectancy (Years)',
+                        data: Object.values(impacts),
+                        backgroundColor: Object.values(impacts).map(value => 
+                            value > 0 ? '#ff4d00' : '#800000'
+                        ),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 77, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 77, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
